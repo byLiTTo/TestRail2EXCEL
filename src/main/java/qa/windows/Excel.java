@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -35,6 +36,8 @@ public class Excel extends JFrame {
     private JLabel excelCTFRLabel;
     private JLabel regressionINT1FRLabel;
     private JLabel excelINT1FRLabel;
+    private JLabel soleraLogo;
+    private JLabel version;
 
     // CONSTRUCTORS  --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> -->
 
@@ -46,14 +49,14 @@ public class Excel extends JFrame {
         this.pack();
         this.setBounds(0, 0, 800, 480);
         this.setLocationRelativeTo(null);
-//        this.setIconImage(new ImageIcon("src/main/java/org/testrail2word/assets/clipboard.png").getImage());
-        jPanel.setBackground(new Color(230, 242, 255));
+        this.setIconImage(new ImageIcon("src/main/resources/img/Logo2.png").getImage());
+        jPanel.setBackground(new Color(127, 133, 245));
 
-        browserLabel.setFont(new Font(CALIBRI, Font.PLAIN, 18));
-        regressionCTFRLabel.setFont(new Font(CALIBRI, Font.PLAIN, 18));
-        excelCTFRLabel.setFont(new Font(CALIBRI, Font.PLAIN, 18));
-        regressionINT1FRLabel.setFont(new Font(CALIBRI, Font.PLAIN, 18));
-        excelINT1FRLabel.setFont(new Font(CALIBRI, Font.PLAIN, 18));
+        browserLabel.setFont(new Font(CALIBRI, Font.BOLD, 18));
+        regressionCTFRLabel.setFont(new Font(CALIBRI, Font.BOLD, 18));
+        excelCTFRLabel.setFont(new Font(CALIBRI, Font.BOLD, 18));
+        regressionINT1FRLabel.setFont(new Font(CALIBRI, Font.BOLD, 18));
+        excelINT1FRLabel.setFont(new Font(CALIBRI, Font.BOLD, 18));
 
         comboBox.setFont(new Font(DEFAULT, Font.PLAIN, 14));
 
@@ -104,6 +107,6 @@ public class Excel extends JFrame {
     // Main Function --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> -->
 
     public static void runApplication() {
-        new Excel("TestRail2Excel");
+        new Excel("QapterClaims FR - Maintenance tool");
     }
 }
