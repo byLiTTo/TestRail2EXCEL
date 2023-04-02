@@ -1,9 +1,12 @@
 package qa.windows;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -11,7 +14,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import qa.controller.ExcelController;
+import qa.ExcelController;
 
 public class Excel extends JFrame {
 
@@ -38,6 +41,7 @@ public class Excel extends JFrame {
     private JLabel excelINT1FRLabel;
     private JLabel soleraLogo;
     private JLabel version;
+    private JLabel statusLog;
 
     // CONSTRUCTORS  --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> -->
 
@@ -98,8 +102,63 @@ public class Excel extends JFrame {
         updateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                setCursor(Cursor.WAIT_CURSOR);
                 controller.update(String.valueOf(comboBox.getSelectedItem()), textFieldRegreCT.getText(),
                         textFieldRegreINT.getText());
+                setCursor(Cursor.DEFAULT_CURSOR);
+            }
+        });
+        updateButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                super.mouseEntered(e);
+                setCursor(Cursor.HAND_CURSOR);
+            }
+        });
+        updateButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseExited(MouseEvent e) {
+                super.mouseExited(e);
+                setCursor(Cursor.DEFAULT_CURSOR);
+            }
+        });
+        comboBox.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                super.mouseEntered(e);
+                setCursor(Cursor.HAND_CURSOR);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                super.mouseExited(e);
+                setCursor(Cursor.DEFAULT_CURSOR);
+            }
+        });
+        openCTButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                super.mouseEntered(e);
+                setCursor(Cursor.HAND_CURSOR);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                super.mouseExited(e);
+                setCursor(Cursor.DEFAULT_CURSOR);
+            }
+        });
+        openINTButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                super.mouseEntered(e);
+                setCursor(Cursor.HAND_CURSOR);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                super.mouseExited(e);
+                setCursor(Cursor.DEFAULT_CURSOR);
             }
         });
     }

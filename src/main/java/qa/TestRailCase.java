@@ -1,4 +1,4 @@
-package qa.model;
+package qa;
 
 public class TestRailCase {
 
@@ -7,6 +7,7 @@ public class TestRailCase {
     private String assigned;
     private String title;
     private String caseID;
+    private String testStatus;
     private String section;
     private String description;
     private String solution;
@@ -15,10 +16,11 @@ public class TestRailCase {
 
     // CONSTRUCTORS  --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> -->
 
-    public TestRailCase(String title, String caseID, String section) {
+    public TestRailCase(String title, String caseID, String testStatus, String section) {
         this.assigned = "";
         this.title = title;
         this.caseID = caseID;
+        this.testStatus = testStatus;
         this.section = section;
         this.description = "";
         this.solution = "";
@@ -92,21 +94,11 @@ public class TestRailCase {
         this.status = status;
     }
 
-    // FUNCTIONS --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> -->
-
-    public String[] toCSV() {
-        return (this.getAssigned() + "," + this.getTitle() + "," + this.getCaseID() + ","
-                + this.getSection() + ","
-                + this.getDescription() + "," + this.getSolution() + "," + this.getLink() + ","
-                + this.getStatus()).split(",");
+    public String getTestStatus() {
+        return testStatus;
     }
 
-    // OVERRIDES --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> -->
-
-    @Override
-    public String toString() {
-        return this.getAssigned() + "\t" + this.getTitle() + "\t" + this.getCaseID() + "\t" + this.getSection() + "\t"
-                + this.getDescription() + "\t" + this.getSolution() + "\t" + this.getLink() + "\t"
-                + this.getStatus();
+    public void setTestStatus(String testStatus) {
+        this.testStatus = testStatus;
     }
 }
