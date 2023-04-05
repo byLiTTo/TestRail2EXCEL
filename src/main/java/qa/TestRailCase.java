@@ -28,6 +28,20 @@ public class TestRailCase {
         this.status = "-";
     }
 
+    public TestRailCase(String assigned, String title, String caseID, String testStatus, String section,
+            String description,
+            String solution, String link, String status) {
+        this.assigned = assigned;
+        this.title = title;
+        this.caseID = caseID;
+        this.testStatus = testStatus;
+        this.section = section;
+        this.description = description;
+        this.solution = solution;
+        this.link = link;
+        this.status = status;
+    }
+
     // GETTERS & SETTERS --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> -->
 
     public String getAssigned() {
