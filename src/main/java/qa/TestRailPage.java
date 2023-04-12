@@ -58,7 +58,7 @@ public class TestRailPage {
         List<TestRailCase> temp = new ArrayList<>();
         for (WebElement element : cases) {
             String title = element.findElement(By.xpath("./td[2]/a")).getText();
-            String caseID = element.findElement(By.xpath("./td[4]/a")).getText();
+            String caseID = element.findElement(By.xpath("./td[@class='id']/a")).getText();
             String testStatus = element.findElement(By.xpath("./td/a[@class='dropdownLink status hidden-xs']"))
                     .getText();
             String section = element.findElement(By.xpath("./../../..//*[@class='title pull-left']")).getText();
@@ -75,7 +75,7 @@ public class TestRailPage {
 
         sleep(1000);
 
-        return loadTestCases(webDriver.findElements(By.xpath("//td[@class='js-status']//a[text()='F']/../..")));
+        return loadTestCases(webDriver.findElements(By.xpath("//td[@class='js-status']//a[text()='Failed']/../..")));
     }
 
     public List<TestRailCase> loadPostponedTestCases() {
