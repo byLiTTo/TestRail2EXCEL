@@ -2,6 +2,7 @@ package qa;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -27,9 +28,9 @@ public class ExcelController {
     private String int1frExcelPath;
 
     private WebDriver webDriver;
-    private List<TestRailCase> previousRegressionCTFR;
+    private HashMap<String, TestRailCase> previousRegressionCTFR;
     private List<TestRailCase> regressionCTFR;
-    private List<TestRailCase> previousRegressionINT1FR;
+    private HashMap<String, TestRailCase> previousRegressionINT1FR;
     private List<TestRailCase> regressionINT1FR;
 
     private TestRailPage page;
@@ -47,19 +48,20 @@ public class ExcelController {
 
         page.openRegression(ctfrName);
 
-        previousRegressionCTFR = page.convertExcel2TestCase(new File(ctfrExcelPath));
-        regressionCTFR = Stream.concat(page.loadFailedTestCases().stream(), page.loadPostponedTestCases().stream())
+        previousRegressionCTFR = page.convertExcel2Hashmap(new File(ctfrExcelPath));
+        regressionCTFR = page.mergeCases(previousRegressionCTFR, page.loadFailedTestCases());
+        regressionCTFR = Stream.concat(regressionCTFR.stream(), page.loadPostponedTestCases().stream())
                 .collect(Collectors.toList());
-        page.convertTestCase2Excel(new File(ctfrExcelPath), page.mergeCases(previousRegressionCTFR, regressionCTFR));
+        page.convertTestCase2Excel(new File(ctfrExcelPath), regressionCTFR);
 
         page.openMainPage();
 
         page.openRegression(int1frName);
-        previousRegressionINT1FR = page.convertExcel2TestCase(new File(int1frExcelPath));
-        regressionINT1FR = Stream.concat(page.loadFailedTestCases().stream(), page.loadPostponedTestCases().stream())
+        previousRegressionINT1FR = page.convertExcel2Hashmap(new File(int1frExcelPath));
+        regressionINT1FR = page.mergeCases(previousRegressionINT1FR, page.loadFailedTestCases());
+        regressionINT1FR = Stream.concat(regressionINT1FR.stream(), page.loadPostponedTestCases().stream())
                 .collect(Collectors.toList());
-        page.convertTestCase2Excel(new File(int1frExcelPath),
-                page.mergeCases(previousRegressionINT1FR, regressionINT1FR));
+        page.convertTestCase2Excel(new File(int1frExcelPath), regressionINT1FR);
 
         webDriver.close();
     }

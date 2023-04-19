@@ -5,6 +5,7 @@ public class TestRailCase {
     // ATTRIBUTES    --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> -->
 
     private String assigned;
+    private String lastFailed;
     private String title;
     private String caseID;
     private String testStatus;
@@ -18,6 +19,7 @@ public class TestRailCase {
 
     public TestRailCase(String title, String caseID, String testStatus, String section) {
         this.assigned = "";
+        this.lastFailed = "";
         this.title = title;
         this.caseID = caseID;
         this.testStatus = testStatus;
@@ -28,10 +30,11 @@ public class TestRailCase {
         this.status = "-";
     }
 
-    public TestRailCase(String assigned, String title, String caseID, String testStatus, String section,
+    public TestRailCase(String assigned, String lastFailed, String title, String caseID, String testStatus, String section,
             String description,
             String solution, String link, String status) {
         this.assigned = assigned;
+        this.lastFailed = lastFailed;
         this.title = title;
         this.caseID = caseID;
         this.testStatus = testStatus;
@@ -50,6 +53,14 @@ public class TestRailCase {
 
     public void setAssigned(String assigned) {
         this.assigned = assigned;
+    }
+
+    public String getLastFailed() {
+        return lastFailed;
+    }
+
+    public void setLastFailed(String lastFailed) {
+        this.lastFailed = lastFailed;
     }
 
     public String getTitle() {

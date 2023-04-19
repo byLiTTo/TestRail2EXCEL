@@ -149,6 +149,10 @@ public class TestRailPage {
 
             cell = rowTemp.createCell(cellnumTemp++);
             cell.setCellStyle(style);
+            cell.setCellValue(testRailCase.getLastFailed());
+
+            cell = rowTemp.createCell(cellnumTemp++);
+            cell.setCellStyle(style);
             cell.setCellValue(testRailCase.getTitle());
 
             cell = rowTemp.createCell(cellnumTemp++);
@@ -186,8 +190,8 @@ public class TestRailPage {
 
         validationHelper = new XSSFDataValidationHelper(sheet);
         CellRangeAddressList addressList = new CellRangeAddressList(rowValidation, rowValidation + cases.size() - 1,
-                8,
-                8);
+                9,
+                9);
         constraint = validationHelper.createExplicitListConstraint(Constants.Status);
         dataValidation = validationHelper.createValidation(constraint, addressList);
         dataValidation.setSuppressDropDownArrow(true);
@@ -224,7 +228,7 @@ public class TestRailPage {
     }
 
     public List<TestRailCase> convertExcel2TestCase(File file) {
-        List<TestRailCase> previosRegression = new ArrayList<>();
+        List<TestRailCase> testRailCases = new ArrayList<>();
 
         FileInputStream fileInputStream = null;
         try {
@@ -233,28 +237,29 @@ public class TestRailPage {
             throw new RuntimeException(e);
         }
 
-        XSSFWorkbook worbook = null;
+        XSSFWorkbook workbook = null;
         try {
-            worbook = new XSSFWorkbook(fileInputStream);
+            workbook = new XSSFWorkbook(fileInputStream);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        XSSFSheet sheet = worbook.getSheetAt(0);
+        XSSFSheet sheet = workbook.getSheetAt(0);
         int rownNum = sheet.getLastRowNum();
-        int previousRegression = rownNum;
-        while (!sheet.getRow(previousRegression).getCell(0).getStringCellValue()
+        int regresionRow = rownNum;
+        while (!sheet.getRow(regresionRow).getCell(0).getStringCellValue()
                 .equals(EXCEL_FIELDS.ASSIGNED_TO.toString())) {
-            previousRegression--;
+            regresionRow--;
         }
 
-        Iterator<Row> rowIterator = sheet.getRow(previousRegression).getSheet().rowIterator();
+        Iterator<Row> rowIterator = sheet.getRow(regresionRow).getSheet().rowIterator();
         while (rowIterator.hasNext()) {
             Row row = rowIterator.next();
             Iterator<Cell> cellIterator = row.cellIterator();
 
-            previosRegression.add(new TestRailCase(
+            testRailCases.add(new TestRailCase(
                     cellIterator.next().getStringCellValue(),       // Assigned to
+                    cellIterator.next().getStringCellValue(),       // Last Failed
                     cellIterator.next().getStringCellValue(),       // Title
                     cellIterator.next().getStringCellValue(),       // Code ID
                     cellIterator.next().getStringCellValue(),       // Test status
@@ -264,10 +269,12 @@ public class TestRailPage {
                     cellIterator.next().getStringCellValue(),       // Link
                     cellIterator.next().getStringCellValue()        // Status
             ));
+            testRailCases.get(testRailCases.size() - 1)
+                    .setLastFailed(String.valueOf(row.getRowNum() + 1));
         }
 
         try {
-            worbook.close();
+            workbook.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -277,7 +284,67 @@ public class TestRailPage {
             throw new RuntimeException(e);
         }
 
-        return previosRegression;
+        return testRailCases;
+    }
+
+    public HashMap<String, TestRailCase> convertExcel2Hashmap(File file) {
+        HashMap<String, TestRailCase> testRailCaseHashMap = new HashMap<>();
+
+        FileInputStream fileInputStream = null;
+        try {
+            fileInputStream = new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        XSSFWorkbook workbook = null;
+        try {
+            workbook = new XSSFWorkbook(fileInputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        XSSFSheet sheet = workbook.getSheetAt(0);
+        int rownNum = sheet.getLastRowNum();
+        int regresionRow = rownNum;
+        while (!sheet.getRow(regresionRow).getCell(0).getStringCellValue()
+                .equals(EXCEL_FIELDS.ASSIGNED_TO.toString())) {
+            regresionRow--;
+        }
+
+        Iterator<Row> rowIterator = sheet.getRow(regresionRow).getSheet().rowIterator();
+        while (rowIterator.hasNext()) {
+            Row row = rowIterator.next();
+            Iterator<Cell> cellIterator = row.cellIterator();
+
+            TestRailCase temp = new TestRailCase(
+                    cellIterator.next().getStringCellValue(),       // Assigned to
+                    cellIterator.next().getStringCellValue(),       // Last Failed
+                    cellIterator.next().getStringCellValue(),       // Title
+                    cellIterator.next().getStringCellValue(),       // Code ID
+                    cellIterator.next().getStringCellValue(),       // Test status
+                    cellIterator.next().getStringCellValue(),       // Section
+                    cellIterator.next().getStringCellValue(),       // Description
+                    cellIterator.next().getStringCellValue(),       // Solution
+                    cellIterator.next().getStringCellValue(),       // Link
+                    cellIterator.next().getStringCellValue()        // Status
+            );
+            temp.setLastFailed(String.valueOf(row.getRowNum() + 1));
+            testRailCaseHashMap.put(temp.getCaseID(), temp);
+        }
+
+        try {
+            workbook.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            fileInputStream.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return testRailCaseHashMap;
     }
 
     private CellStyle getHeaderStyle(CellStyle style) {
@@ -337,25 +404,17 @@ public class TestRailPage {
         sleep(1000);
     }
 
-    public List<TestRailCase> mergeCases(List<TestRailCase> previous, List<TestRailCase> actual) {
-        HashMap<String, TestRailCase> previousMap = new HashMap<>();
-        for (TestRailCase test : previous) {
-            previousMap.put(test.getCaseID(), test);
-        }
-
+    public List<TestRailCase> mergeCases(HashMap<String, TestRailCase> previous, List<TestRailCase> actual) {
         List<TestRailCase> temp = new ArrayList<>();
         for (TestRailCase test : actual) {
             String id = test.getCaseID();
-            if (previousMap.containsKey(id)) {
-                TestRailCase aux = previousMap.get(id);
-                aux.setTestStatus(test.getTestStatus());
-                temp.add(aux);
-            } else {
-                temp.add(test);
+            if (previous.containsKey(id)) {
+                TestRailCase aux = previous.get(id);
+                test.setLastFailed(aux.getLastFailed());
             }
+            temp.add(test);
         }
 
         return temp;
     }
-
 }

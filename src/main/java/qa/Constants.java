@@ -22,6 +22,7 @@ public class Constants {
 
     public enum EXCEL_FIELDS {
         ASSIGNED_TO,
+        LAST_FAILED,
         TITLE,
         CASE_ID,
         TEST_STATUS,
