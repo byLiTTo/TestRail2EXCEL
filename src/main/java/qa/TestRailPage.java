@@ -404,7 +404,7 @@ public class TestRailPage {
         sleep(1000);
     }
 
-    public List<TestRailCase> mergeCases(HashMap<String, TestRailCase> previous, List<TestRailCase> actual) {
+    public List<TestRailCase> mergeFailedCases(HashMap<String, TestRailCase> previous, List<TestRailCase> actual) {
         List<TestRailCase> temp = new ArrayList<>();
         for (TestRailCase test : actual) {
             String id = test.getCaseID();
@@ -414,7 +414,19 @@ public class TestRailPage {
             }
             temp.add(test);
         }
+        return temp;
+    }
 
+    public List<TestRailCase> mergePostponedCases(HashMap<String, TestRailCase> previous, List<TestRailCase> actual) {
+        List<TestRailCase> temp = new ArrayList<>();
+        for (TestRailCase test : actual) {
+            String id = test.getCaseID();
+            if (previous.containsKey(id)) {
+                temp.add(previous.get(id));
+            } else {
+                temp.add(test);
+            }
+        }
         return temp;
     }
 }
