@@ -1,5 +1,7 @@
 package qa;
 
+import static org.apache.poi.common.usermodel.Hyperlink.LINK_URL;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -17,10 +19,12 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataValidation;
 import org.apache.poi.ss.usermodel.DataValidationConstraint;
 import org.apache.poi.ss.usermodel.DataValidationHelper;
+import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
+import org.apache.poi.xssf.usermodel.XSSFHyperlink;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.By;
@@ -33,9 +37,14 @@ import qa.Constants.EXCEL_FIELDS;
 
 public class TestRailPage {
 
+    // ATTRIBUTES--> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> -->
+
     private static final String HEADER = "content-header";
 
     private WebDriver webDriver;
+    private int titleIndex = 3;
+    private int caseIDIndex = 5;
+    //table[@id='grid-14959939']//tr[@class='header']/th[3]
 
     public TestRailPage(WebDriver webDriver) {
         this.webDriver = webDriver;
@@ -57,13 +66,15 @@ public class TestRailPage {
     private List<TestRailCase> loadTestCases(List<WebElement> cases) {
         List<TestRailCase> temp = new ArrayList<>();
         for (WebElement element : cases) {
-            String title = element.findElement(By.xpath("./td[2]/a")).getText();
-            String caseID = element.findElement(By.xpath("./td[@class='id']/a")).getText();
+            String title = element.findElement(By.xpath("./td[" + titleIndex + "]/a")).getText();
+            WebElement tmp = element.findElement(By.xpath("./td[" + caseIDIndex + "]/a"));
+            String caseURL = tmp.getAttribute("href");
+            String caseID = tmp.getText();
             String testStatus = element.findElement(By.xpath("./td/a[@class='dropdownLink status hidden-xs']"))
                     .getText();
             String section = element.findElement(By.xpath("./../../..//*[@class='title pull-left']")).getText();
 
-            temp.add(new TestRailCase(title, caseID, testStatus, section));
+            temp.add(new TestRailCase(title, caseURL, caseID, testStatus, section));
         }
         return temp;
     }
@@ -157,6 +168,9 @@ public class TestRailPage {
 
             cell = rowTemp.createCell(cellnumTemp++);
             cell.setCellStyle(style);
+            XSSFHyperlink link = workBook.getCreationHelper().createHyperlink(LINK_URL);
+            link.setAddress(testRailCase.getCaseURL());
+            cell.setHyperlink(link);
             cell.setCellValue(testRailCase.getCaseID());
 
             cell = rowTemp.createCell(cellnumTemp++);
@@ -177,7 +191,7 @@ public class TestRailPage {
 
             cell = rowTemp.createCell(cellnumTemp++);
             cell.setCellStyle(style);
-            cell.setCellValue(testRailCase.getLink());
+            cell.setCellValue(testRailCase.getSolutionLink());
 
             cell = rowTemp.createCell(cellnumTemp);
             cell.setCellStyle(style);
@@ -261,6 +275,7 @@ public class TestRailPage {
                     cellIterator.next().getStringCellValue(),       // Assigned to
                     cellIterator.next().getStringCellValue(),       // Last Failed
                     cellIterator.next().getStringCellValue(),       // Title
+                    cellIterator.next().getHyperlink().getAddress(),
                     cellIterator.next().getStringCellValue(),       // Code ID
                     cellIterator.next().getStringCellValue(),       // Test status
                     cellIterator.next().getStringCellValue(),       // Section
@@ -306,6 +321,9 @@ public class TestRailPage {
 
         XSSFSheet sheet = workbook.getSheetAt(0);
         int rownNum = sheet.getLastRowNum();
+        if (rownNum == 0) {
+            return testRailCaseHashMap;
+        }
         int regresionRow = rownNum;
         while (!sheet.getRow(regresionRow).getCell(0).getStringCellValue()
                 .equals(EXCEL_FIELDS.ASSIGNED_TO.toString())) {
@@ -317,17 +335,38 @@ public class TestRailPage {
             Row row = rowIterator.next();
             Iterator<Cell> cellIterator = row.cellIterator();
 
+            String assignedTo = cellIterator.next().getStringCellValue();
+            String lastFailed = cellIterator.next().getStringCellValue();
+            String title = cellIterator.next().getStringCellValue();
+            Hyperlink aux = cellIterator.next().getHyperlink();
+            String caseURL;
+            String caseID;
+            if (aux == null) {
+                caseURL = "";
+                caseID = "";
+            } else {
+                caseURL = aux.getAddress();
+                caseID = aux.getLabel();
+            }
+            String tesStatus = cellIterator.next().getStringCellValue();
+            String section = cellIterator.next().getStringCellValue();
+            String description = cellIterator.next().getStringCellValue();
+            String solution = cellIterator.next().getStringCellValue();
+            String solutionLink = cellIterator.next().getStringCellValue();
+            String status = cellIterator.next().getStringCellValue();
+
             TestRailCase temp = new TestRailCase(
-                    cellIterator.next().getStringCellValue(),       // Assigned to
-                    cellIterator.next().getStringCellValue(),       // Last Failed
-                    cellIterator.next().getStringCellValue(),       // Title
-                    cellIterator.next().getStringCellValue(),       // Code ID
-                    cellIterator.next().getStringCellValue(),       // Test status
-                    cellIterator.next().getStringCellValue(),       // Section
-                    cellIterator.next().getStringCellValue(),       // Description
-                    cellIterator.next().getStringCellValue(),       // Solution
-                    cellIterator.next().getStringCellValue(),       // Link
-                    cellIterator.next().getStringCellValue()        // Status
+                    assignedTo,
+                    lastFailed,
+                    title,
+                    caseURL,
+                    caseID,
+                    tesStatus,
+                    section,
+                    description,
+                    solution,
+                    solutionLink,
+                    status
             );
             temp.setLastFailed(String.valueOf(row.getRowNum() + 1));
             testRailCaseHashMap.put(temp.getCaseID(), temp);

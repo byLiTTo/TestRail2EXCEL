@@ -17,8 +17,8 @@ public class Constants {
             IndexedColors.LIGHT_ORANGE,
             IndexedColors.LIGHT_CORNFLOWER_BLUE
     };
-    public static final String[] Status = new String[]{"-", "DEVELOPING", "SOLVED", "PR_CREATED", "PR_MERGED",
-            "POSSIBLE_BUG", "UPDATING_BUG", "WAITING_NEXT_EXECUTION", "WAITING_SUPPORT"};
+    public static final String[] Status = new String[]{"-", "DEVELOPING","NODE_ERROR", "PR_CREATED", "PR_MERGED",
+            "POSSIBLE_BUG", "REPORTED_BUG", "WAITING_SUPPORT"};
 
     public enum EXCEL_FIELDS {
         ASSIGNED_TO,
@@ -29,7 +29,7 @@ public class Constants {
         SECTION,
         DESCRIPTION,
         SOLUTION,
-        LINK,
+        SOLUTION_LINK,
         STATUS
     }
 

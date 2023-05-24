@@ -90,7 +90,7 @@
           </grid>
         </constraints>
         <properties>
-          <text value="QAPTER_CLAIMS_FR_AUTO_REGRESSION_CTFR_04-2023"/>
+          <text value="QAPTER_CLAIMS_FR_AUTO_REGRESSION_CTFR_05-2023"/>
         </properties>
       </component>
       <component id="2d447" class="javax.swing.JLabel" binding="excelCTFRLabel">
@@ -139,7 +139,7 @@
           </grid>
         </constraints>
         <properties>
-          <text value="QAPTER_CLAIMS_FR_AUTO_REGRESSION_INT1FR_04-2023"/>
+          <text value="QAPTER_CLAIMS_FR_AUTO_REGRESSION_INT1FR_05-2023"/>
         </properties>
       </component>
       <component id="39144" class="javax.swing.JLabel" binding="excelINT1FRLabel">
@@ -181,7 +181,7 @@
         </constraints>
         <properties>
           <foreground color="-1"/>
-          <text value="V1.4"/>
+          <text value="V1.5"/>
         </properties>
       </component>
       <vspacer id="8c242">
