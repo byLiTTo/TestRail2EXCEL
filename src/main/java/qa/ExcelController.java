@@ -4,7 +4,6 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.JFileChooser;
@@ -23,7 +22,6 @@ public class ExcelController {
 
     // ATTRIBUTES    --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> -->
 
-    private final Logger LOG = Logger.getLogger("qa.ExcelController");
     private String ctfrExcelPath;
     private String int1frExcelPath;
 

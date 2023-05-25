@@ -24,7 +24,6 @@ import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
-import org.apache.poi.xssf.usermodel.XSSFHyperlink;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.By;
@@ -68,13 +67,13 @@ public class TestRailPage {
         for (WebElement element : cases) {
             String title = element.findElement(By.xpath("./td[" + titleIndex + "]/a")).getText();
             WebElement tmp = element.findElement(By.xpath("./td[" + caseIDIndex + "]/a"));
-            String caseURL = tmp.getAttribute("href");
-            String caseID = tmp.getText();
+            String caseHyperlinkAddress = tmp.getAttribute("href");
+            String caseHyperlinkLabel = tmp.getText();
             String testStatus = element.findElement(By.xpath("./td/a[@class='dropdownLink status hidden-xs']"))
                     .getText();
             String section = element.findElement(By.xpath("./../../..//*[@class='title pull-left']")).getText();
 
-            temp.add(new TestRailCase(title, caseURL, caseID, testStatus, section));
+            temp.add(new TestRailCase(title, caseHyperlinkAddress, caseHyperlinkLabel, testStatus, section));
         }
         return temp;
     }
@@ -168,10 +167,10 @@ public class TestRailPage {
 
             cell = rowTemp.createCell(cellnumTemp++);
             cell.setCellStyle(style);
-            XSSFHyperlink link = workBook.getCreationHelper().createHyperlink(LINK_URL);
-            link.setAddress(testRailCase.getCaseURL());
+            Hyperlink link = workBook.getCreationHelper().createHyperlink(LINK_URL);
+            link.setAddress(testRailCase.getCaseHyperlinkAddress());
             cell.setHyperlink(link);
-            cell.setCellValue(testRailCase.getCaseID());
+            cell.setCellValue(testRailCase.getCaseHyperlinkLabel());
 
             cell = rowTemp.createCell(cellnumTemp++);
             cell.setCellStyle(style);
@@ -191,7 +190,10 @@ public class TestRailPage {
 
             cell = rowTemp.createCell(cellnumTemp++);
             cell.setCellStyle(style);
-            cell.setCellValue(testRailCase.getSolutionLink());
+            link = workBook.getCreationHelper().createHyperlink(LINK_URL);
+            link.setAddress(testRailCase.getSolHyperlinkAddress());
+            cell.setHyperlink(link);
+            cell.setCellValue(testRailCase.getSolHyperlinkLabel());
 
             cell = rowTemp.createCell(cellnumTemp);
             cell.setCellStyle(style);
@@ -241,67 +243,6 @@ public class TestRailPage {
 
     }
 
-    public List<TestRailCase> convertExcel2TestCase(File file) {
-        List<TestRailCase> testRailCases = new ArrayList<>();
-
-        FileInputStream fileInputStream = null;
-        try {
-            fileInputStream = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-
-        XSSFWorkbook workbook = null;
-        try {
-            workbook = new XSSFWorkbook(fileInputStream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        XSSFSheet sheet = workbook.getSheetAt(0);
-        int rownNum = sheet.getLastRowNum();
-        int regresionRow = rownNum;
-        while (!sheet.getRow(regresionRow).getCell(0).getStringCellValue()
-                .equals(EXCEL_FIELDS.ASSIGNED_TO.toString())) {
-            regresionRow--;
-        }
-
-        Iterator<Row> rowIterator = sheet.getRow(regresionRow).getSheet().rowIterator();
-        while (rowIterator.hasNext()) {
-            Row row = rowIterator.next();
-            Iterator<Cell> cellIterator = row.cellIterator();
-
-            testRailCases.add(new TestRailCase(
-                    cellIterator.next().getStringCellValue(),       // Assigned to
-                    cellIterator.next().getStringCellValue(),       // Last Failed
-                    cellIterator.next().getStringCellValue(),       // Title
-                    cellIterator.next().getHyperlink().getAddress(),
-                    cellIterator.next().getStringCellValue(),       // Code ID
-                    cellIterator.next().getStringCellValue(),       // Test status
-                    cellIterator.next().getStringCellValue(),       // Section
-                    cellIterator.next().getStringCellValue(),       // Description
-                    cellIterator.next().getStringCellValue(),       // Solution
-                    cellIterator.next().getStringCellValue(),       // Link
-                    cellIterator.next().getStringCellValue()        // Status
-            ));
-            testRailCases.get(testRailCases.size() - 1)
-                    .setLastFailed(String.valueOf(row.getRowNum() + 1));
-        }
-
-        try {
-            workbook.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            fileInputStream.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return testRailCases;
-    }
-
     public HashMap<String, TestRailCase> convertExcel2Hashmap(File file) {
         HashMap<String, TestRailCase> testRailCaseHashMap = new HashMap<>();
 
@@ -320,17 +261,17 @@ public class TestRailPage {
         }
 
         XSSFSheet sheet = workbook.getSheetAt(0);
-        int rownNum = sheet.getLastRowNum();
-        if (rownNum == 0) {
+        int rowNum = sheet.getLastRowNum();
+        if (rowNum == 0) {
             return testRailCaseHashMap;
         }
-        int regresionRow = rownNum;
-        while (!sheet.getRow(regresionRow).getCell(0).getStringCellValue()
+        int regressionRow = rowNum;
+        while (!sheet.getRow(regressionRow).getCell(0).getStringCellValue()
                 .equals(EXCEL_FIELDS.ASSIGNED_TO.toString())) {
-            regresionRow--;
+            regressionRow--;
         }
 
-        Iterator<Row> rowIterator = sheet.getRow(regresionRow).getSheet().rowIterator();
+        Iterator<Row> rowIterator = sheet.getRow(regressionRow).getSheet().rowIterator();
         while (rowIterator.hasNext()) {
             Row row = rowIterator.next();
             Iterator<Cell> cellIterator = row.cellIterator();
@@ -338,38 +279,45 @@ public class TestRailPage {
             String assignedTo = cellIterator.next().getStringCellValue();
             String lastFailed = cellIterator.next().getStringCellValue();
             String title = cellIterator.next().getStringCellValue();
-            Hyperlink aux = cellIterator.next().getHyperlink();
-            String caseURL;
-            String caseID;
-            if (aux == null) {
-                caseURL = "";
-                caseID = "";
+            Cell aux = cellIterator.next();
+            String caseHyperlinkAddress;
+            String caseHyperlinkLabel;
+            if (aux.getHyperlink() == null) {
+                caseHyperlinkAddress = "";
             } else {
-                caseURL = aux.getAddress();
-                caseID = aux.getLabel();
+                caseHyperlinkAddress = aux.getHyperlink().getAddress();
             }
+            caseHyperlinkLabel = aux.getStringCellValue();
             String tesStatus = cellIterator.next().getStringCellValue();
             String section = cellIterator.next().getStringCellValue();
             String description = cellIterator.next().getStringCellValue();
             String solution = cellIterator.next().getStringCellValue();
-            String solutionLink = cellIterator.next().getStringCellValue();
+            aux = cellIterator.next();
+            String solHyperlinkAddress;
+            String solHyperlinkLabel;
+            if (aux.getHyperlink() == null) {
+                solHyperlinkAddress = "";
+            } else {
+                solHyperlinkAddress = aux.getHyperlink().getAddress();
+            }
+            solHyperlinkLabel = aux.getStringCellValue();
             String status = cellIterator.next().getStringCellValue();
 
             TestRailCase temp = new TestRailCase(
                     assignedTo,
                     lastFailed,
                     title,
-                    caseURL,
-                    caseID,
+                    caseHyperlinkAddress,
+                    caseHyperlinkLabel,
                     tesStatus,
                     section,
                     description,
                     solution,
-                    solutionLink,
+                    solHyperlinkAddress,
+                    solHyperlinkLabel,
                     status
             );
-            temp.setLastFailed(String.valueOf(row.getRowNum() + 1));
-            testRailCaseHashMap.put(temp.getCaseID(), temp);
+            testRailCaseHashMap.put(caseHyperlinkLabel, temp);
         }
 
         try {
@@ -446,7 +394,7 @@ public class TestRailPage {
     public List<TestRailCase> mergeFailedCases(HashMap<String, TestRailCase> previous, List<TestRailCase> actual) {
         List<TestRailCase> temp = new ArrayList<>();
         for (TestRailCase test : actual) {
-            String id = test.getCaseID();
+            String id = test.getCaseHyperlinkLabel();
             if (previous.containsKey(id)) {
                 TestRailCase aux = previous.get(id);
                 test.setLastFailed(aux.getLastFailed());
@@ -459,12 +407,17 @@ public class TestRailPage {
     public List<TestRailCase> mergePostponedCases(HashMap<String, TestRailCase> previous, List<TestRailCase> actual) {
         List<TestRailCase> temp = new ArrayList<>();
         for (TestRailCase test : actual) {
-            String id = test.getCaseID();
+            String id = test.getCaseHyperlinkLabel();
             if (previous.containsKey(id)) {
-                temp.add(previous.get(id));
-            } else {
-                temp.add(test);
+                TestRailCase tmp = previous.get(id);
+                test.setAssigned(tmp.getAssigned());
+                test.setDescription(tmp.getDescription());
+                test.setSolution(tmp.getSolution());
+                test.setSolHyperlinkAddress(tmp.getSolHyperlinkAddress());
+                test.setSolHyperlinkLabel(tmp.getSolHyperlinkLabel());
+                test.setStatus(tmp.getStatus());
             }
+            temp.add(test);
         }
         return temp;
     }
