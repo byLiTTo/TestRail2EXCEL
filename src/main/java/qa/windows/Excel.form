@@ -181,7 +181,7 @@
         </constraints>
         <properties>
           <foreground color="-1"/>
-          <text value="V1.5"/>
+          <text value="V1.5.2"/>
         </properties>
       </component>
       <vspacer id="8c242">

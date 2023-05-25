@@ -65,15 +65,21 @@ public class TestRailPage {
     private List<TestRailCase> loadTestCases(List<WebElement> cases) {
         List<TestRailCase> temp = new ArrayList<>();
         for (WebElement element : cases) {
-            String title = element.findElement(By.xpath("./td[" + titleIndex + "]/a")).getText();
-            WebElement tmp = element.findElement(By.xpath("./td[" + caseIDIndex + "]/a"));
+            WebElement tmp = element.findElement(By.xpath("./td[" + titleIndex + "]/a"));
+            String titleHyperlinkAddress = tmp.getAttribute("href");
+            String titleHyperlinkLabel = tmp.getText();
+
+            tmp = element.findElement(By.xpath("./td[" + caseIDIndex + "]/a"));
             String caseHyperlinkAddress = tmp.getAttribute("href");
             String caseHyperlinkLabel = tmp.getText();
+
             String testStatus = element.findElement(By.xpath("./td/a[@class='dropdownLink status hidden-xs']"))
                     .getText();
+
             String section = element.findElement(By.xpath("./../../..//*[@class='title pull-left']")).getText();
 
-            temp.add(new TestRailCase(title, caseHyperlinkAddress, caseHyperlinkLabel, testStatus, section));
+            temp.add(new TestRailCase(titleHyperlinkAddress, titleHyperlinkLabel, caseHyperlinkAddress,
+                    caseHyperlinkLabel, testStatus, section));
         }
         return temp;
     }
@@ -163,11 +169,14 @@ public class TestRailPage {
 
             cell = rowTemp.createCell(cellnumTemp++);
             cell.setCellStyle(style);
-            cell.setCellValue(testRailCase.getTitle());
+            Hyperlink link = workBook.getCreationHelper().createHyperlink(LINK_URL);
+            link.setAddress(testRailCase.getTitleHyperlinkAddress());
+            cell.setHyperlink(link);
+            cell.setCellValue(testRailCase.getTitleHyperlinkLabel());
 
             cell = rowTemp.createCell(cellnumTemp++);
             cell.setCellStyle(style);
-            Hyperlink link = workBook.getCreationHelper().createHyperlink(LINK_URL);
+            link = workBook.getCreationHelper().createHyperlink(LINK_URL);
             link.setAddress(testRailCase.getCaseHyperlinkAddress());
             cell.setHyperlink(link);
             cell.setCellValue(testRailCase.getCaseHyperlinkLabel());
@@ -278,8 +287,16 @@ public class TestRailPage {
 
             String assignedTo = cellIterator.next().getStringCellValue();
             String lastFailed = cellIterator.next().getStringCellValue();
-            String title = cellIterator.next().getStringCellValue();
             Cell aux = cellIterator.next();
+            String titleHyperlinkAddress;
+            String titleHyperlinkLabel;
+            if (aux.getHyperlink() == null) {
+                titleHyperlinkAddress = "";
+            } else {
+                titleHyperlinkAddress = aux.getHyperlink().getAddress();
+            }
+            titleHyperlinkLabel = aux.getStringCellValue();
+            aux = cellIterator.next();
             String caseHyperlinkAddress;
             String caseHyperlinkLabel;
             if (aux.getHyperlink() == null) {
@@ -306,7 +323,8 @@ public class TestRailPage {
             TestRailCase temp = new TestRailCase(
                     assignedTo,
                     lastFailed,
-                    title,
+                    titleHyperlinkAddress,
+                    titleHyperlinkLabel,
                     caseHyperlinkAddress,
                     caseHyperlinkLabel,
                     tesStatus,
@@ -392,16 +410,16 @@ public class TestRailPage {
     }
 
     public List<TestRailCase> mergeFailedCases(HashMap<String, TestRailCase> previous, List<TestRailCase> actual) {
-        List<TestRailCase> temp = new ArrayList<>();
-        for (TestRailCase test : actual) {
-            String id = test.getCaseHyperlinkLabel();
-            if (previous.containsKey(id)) {
-                TestRailCase aux = previous.get(id);
-                test.setLastFailed(aux.getLastFailed());
-            }
-            temp.add(test);
-        }
-        return temp;
+//        List<TestRailCase> temp = new ArrayList<>();
+//        for (TestRailCase test : actual) {
+//            String id = test.getCaseHyperlinkLabel();
+//            if (previous.containsKey(id)) {
+//                TestRailCase aux = previous.get(id);
+//                test.setLastFailed(aux.getLastFailed());
+//            }
+//            temp.add(test);
+//        }
+        return actual;
     }
 
     public List<TestRailCase> mergePostponedCases(HashMap<String, TestRailCase> previous, List<TestRailCase> actual) {
