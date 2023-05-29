@@ -19,11 +19,11 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataValidation;
 import org.apache.poi.ss.usermodel.DataValidationConstraint;
 import org.apache.poi.ss.usermodel.DataValidationHelper;
-import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
+import org.apache.poi.xssf.usermodel.XSSFHyperlink;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.By;
@@ -38,15 +38,30 @@ public class TestRailPage {
 
     // ATTRIBUTES--> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> -->
 
+    private static final String SCROLL_SCRIPT = "arguments[0].scrollTop = arguments[0].scrollHeight";
+
     private static final String HEADER = "content-header";
+    private static final String DISPLAYER = "./td[@class='action']";
+    private static final String HISTORY_TAB = "//div[@class='tab-header']/a[@id= 'historyTab']";
+    private static final String SHOW_ALL = "//div[@id='showHistory']/span[@class='showAll text-secondary pull-right']/a";
+    private static final String STATISTICS_PANEL = "//div[@class='chart-legend-title' and contains(text(),'In the past 30 days:')]/..";
+    private static final String HISTORY_PASSED_TEST = "//div[@id='history']//tr/td[@class='box']/span[text()='Passed']";
+    private static final String HISTORY_FAILED_TEST = "//div[@id='history']//tr/td[@class='box']/span[text()='Failed']";
+    private static final String HISTORY_POSTPONED_TEST = "//div[@id='history']//tr/td[@class='box']/span[text()='Postponed']";
+
+    private static final String HISTORY_RECENTLY_PASSED_TEST = "//div[@id='history']//div[@class='chart-legend-name text-ppp' and contains(text(),'Passed')]";
+    private static final String HISTORY_RECENTLY_FAILED_TEST = "//div[@id='history']//div[@class='chart-legend-name text-ppp' and contains(text(),'Failed')]";
+    private static final String HISTORY_RECENTLY_POSTPONED_TEST = "//div[@id='history']//div[@class='chart-legend-name text-ppp' and contains(text(),'Postponed')]";
 
     private WebDriver webDriver;
-    private int titleIndex = 3;
-    private int caseIDIndex = 5;
+    private WebDriverWait wait;
+    private int titleIndex = 2;
+    private int caseIDIndex = 4;
     //table[@id='grid-14959939']//tr[@class='header']/th[3]
 
     public TestRailPage(WebDriver webDriver) {
         this.webDriver = webDriver;
+        this.wait = new WebDriverWait(webDriver, Duration.ofSeconds(30));
     }
 
     private void sleep(int timemillis) {
@@ -78,7 +93,9 @@ public class TestRailPage {
 
             String section = element.findElement(By.xpath("./../../..//*[@class='title pull-left']")).getText();
 
-            temp.add(new TestRailCase(titleHyperlinkAddress, titleHyperlinkLabel, caseHyperlinkAddress,
+            String failRatio = loadRecentlyHistory(element);
+
+            temp.add(new TestRailCase(failRatio, titleHyperlinkAddress, titleHyperlinkLabel, caseHyperlinkAddress,
                     caseHyperlinkLabel, testStatus, section));
         }
         return temp;
@@ -97,10 +114,71 @@ public class TestRailPage {
     public List<TestRailCase> loadPostponedTestCases() {
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(80));
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(HEADER)));
-
+        JavascriptExecutor js = (JavascriptExecutor) webDriver;
+        js.executeScript("window.scrollTo(0, 0)");
         sleep(1000);
 
         return loadTestCases(webDriver.findElements(By.xpath("//td[@class='js-status']//a[text()='Postponed']/../..")));
+    }
+
+    private String loadHistory(WebElement element) {
+        JavascriptExecutor js = (JavascriptExecutor) webDriver;
+
+        js.executeScript(SCROLL_SCRIPT, element.findElement(By.xpath(DISPLAYER)));
+        sleep(500);
+        wait.until(ExpectedConditions.visibilityOf(element.findElement(By.xpath(DISPLAYER))));
+        wait.until(ExpectedConditions.elementToBeClickable(element.findElement(By.xpath(DISPLAYER)))).click();
+        sleep(500);
+        wait.until(ExpectedConditions.attributeContains(
+                element.findElement(By.xpath(DISPLAYER + "//span[@class='action-collapse hidden']")), "style",
+                "display: inline;"));
+
+        js.executeScript(SCROLL_SCRIPT, webDriver.findElement(By.xpath(HISTORY_TAB)));
+        sleep(500);
+        wait.until(ExpectedConditions.visibilityOf(webDriver.findElement(By.xpath(HISTORY_TAB))));
+        wait.until(ExpectedConditions.elementToBeClickable(webDriver.findElement(By.xpath(HISTORY_TAB)))).click();
+        sleep(500);
+
+        wait.until(ExpectedConditions.visibilityOf(webDriver.findElement(By.id("activityChart"))));
+        wait.until(ExpectedConditions.elementToBeClickable(webDriver.findElement(By.xpath(SHOW_ALL))));
+        js.executeScript(SCROLL_SCRIPT, webDriver.findElement(By.xpath(SHOW_ALL)));
+        sleep(500);
+        wait.until(ExpectedConditions.elementToBeClickable(webDriver.findElement(By.xpath(SHOW_ALL)))).click();
+        wait.until(ExpectedConditions.invisibilityOf(webDriver.findElement(By.xpath(SHOW_ALL))));
+        sleep(500);
+
+        int totalPassed = webDriver.findElements(By.xpath(HISTORY_PASSED_TEST)).size();
+        int totalFail = webDriver.findElements(By.xpath(HISTORY_FAILED_TEST)).size();
+        int totalPostponed = webDriver.findElements(By.xpath(HISTORY_POSTPONED_TEST)).size();
+
+        return totalFail + "/" + totalPassed + "/" + totalPostponed;
+    }
+
+    private String loadRecentlyHistory(WebElement element) {
+        JavascriptExecutor js = (JavascriptExecutor) webDriver;
+
+        js.executeScript(SCROLL_SCRIPT, element.findElement(By.xpath(DISPLAYER)));
+        sleep(500);
+        wait.until(ExpectedConditions.visibilityOf(element.findElement(By.xpath(DISPLAYER))));
+        wait.until(ExpectedConditions.elementToBeClickable(element.findElement(By.xpath(DISPLAYER)))).click();
+        sleep(500);
+        wait.until(ExpectedConditions.attributeContains(
+                element.findElement(By.xpath(DISPLAYER + "//span[@class='action-collapse hidden']")), "style",
+                "display: inline;"));
+
+        js.executeScript(SCROLL_SCRIPT, webDriver.findElement(By.xpath(HISTORY_TAB)));
+        sleep(500);
+        wait.until(ExpectedConditions.visibilityOf(webDriver.findElement(By.xpath(HISTORY_TAB))));
+        wait.until(ExpectedConditions.elementToBeClickable(webDriver.findElement(By.xpath(HISTORY_TAB)))).click();
+        sleep(500);
+
+//        wait.until(ExpectedConditions.visibilityOf(webDriver.findElement(By.xpath(STATISTICS_PANEL))));
+        String totalPassed = webDriver.findElement(By.xpath(HISTORY_RECENTLY_PASSED_TEST)).getText().split(" ")[0];
+        String totalFail = webDriver.findElement(By.xpath(HISTORY_RECENTLY_FAILED_TEST)).getText().split(" ")[0];
+        String totalPostponed = webDriver.findElement(By.xpath(HISTORY_RECENTLY_POSTPONED_TEST)).getText()
+                .split(" ")[0];
+
+        return totalFail + "/" + totalPassed + "/" + totalPostponed;
     }
 
     public void convertTestCase2Excel(File file, List<TestRailCase> cases) {
@@ -165,11 +243,11 @@ public class TestRailPage {
 
             cell = rowTemp.createCell(cellnumTemp++);
             cell.setCellStyle(style);
-            cell.setCellValue(testRailCase.getLastFailed());
+            cell.setCellValue(testRailCase.getFailRatio());
 
             cell = rowTemp.createCell(cellnumTemp++);
             cell.setCellStyle(style);
-            Hyperlink link = workBook.getCreationHelper().createHyperlink(LINK_URL);
+            XSSFHyperlink link = workBook.getCreationHelper().createHyperlink(LINK_URL);
             link.setAddress(testRailCase.getTitleHyperlinkAddress());
             cell.setHyperlink(link);
             cell.setCellValue(testRailCase.getTitleHyperlinkLabel());
@@ -286,7 +364,7 @@ public class TestRailPage {
             Iterator<Cell> cellIterator = row.cellIterator();
 
             String assignedTo = cellIterator.next().getStringCellValue();
-            String lastFailed = cellIterator.next().getStringCellValue();
+            String failRatio = cellIterator.next().getStringCellValue();
             Cell aux = cellIterator.next();
             String titleHyperlinkAddress;
             String titleHyperlinkLabel;
@@ -314,6 +392,8 @@ public class TestRailPage {
             String solHyperlinkLabel;
             if (aux.getHyperlink() == null) {
                 solHyperlinkAddress = "";
+            } else if (aux.getHyperlink().getAddress() == null) {
+                solHyperlinkAddress = "";
             } else {
                 solHyperlinkAddress = aux.getHyperlink().getAddress();
             }
@@ -322,7 +402,7 @@ public class TestRailPage {
 
             TestRailCase temp = new TestRailCase(
                     assignedTo,
-                    lastFailed,
+                    failRatio,
                     titleHyperlinkAddress,
                     titleHyperlinkLabel,
                     caseHyperlinkAddress,

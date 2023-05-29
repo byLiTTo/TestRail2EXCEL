@@ -5,7 +5,7 @@ public class TestRailCase {
     // ATTRIBUTES    --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> -->
 
     private String assigned;
-    private String lastFailed;
+    private String failRatio;
     private String titleHyperlinkAddress;
     private String titleHyperlinkLabel;
     private String caseHyperlinkAddress;
@@ -23,7 +23,7 @@ public class TestRailCase {
     public TestRailCase(String titleHyperlinkAddress, String titleHyperlinkLabel, String caseHyperlinkAddress,
             String caseHyperlinkLabel, String testStatus, String section) {
         this.assigned = "";
-        this.lastFailed = "";
+        this.failRatio = "";
         this.titleHyperlinkAddress = titleHyperlinkAddress;
         this.titleHyperlinkLabel = titleHyperlinkLabel;
         this.caseHyperlinkAddress = caseHyperlinkAddress;
@@ -36,11 +36,27 @@ public class TestRailCase {
         this.status = "-";
     }
 
-    public TestRailCase(String assigned, String lastFailed, String titleHyperlinkAddress, String titleHyperlinkLabel,
+    public TestRailCase(String failRatio, String titleHyperlinkAddress, String titleHyperlinkLabel, String caseHyperlinkAddress,
+            String caseHyperlinkLabel, String testStatus, String section) {
+        this.assigned = "";
+        this.failRatio = failRatio;
+        this.titleHyperlinkAddress = titleHyperlinkAddress;
+        this.titleHyperlinkLabel = titleHyperlinkLabel;
+        this.caseHyperlinkAddress = caseHyperlinkAddress;
+        this.caseHyperlinkLabel = caseHyperlinkLabel;
+        this.testStatus = testStatus;
+        this.section = section;
+        this.description = "";
+        this.solution = "";
+        this.solHyperlinkAddress = "";
+        this.status = "-";
+    }
+
+    public TestRailCase(String assigned, String failRatio, String titleHyperlinkAddress, String titleHyperlinkLabel,
             String caseURL, String caseID, String testStatus, String section, String description, String solution,
             String solHyperlinkAddress, String solHyperlinkLabel, String status) {
         this.assigned = assigned;
-        this.lastFailed = lastFailed;
+        this.failRatio = failRatio;
         this.titleHyperlinkAddress = titleHyperlinkAddress;
         this.titleHyperlinkLabel = titleHyperlinkLabel;
         this.caseHyperlinkAddress = caseURL;
@@ -65,12 +81,12 @@ public class TestRailCase {
         this.assigned = assigned;
     }
 
-    public String getLastFailed() {
-        return lastFailed;
+    public String getFailRatio() {
+        return failRatio;
     }
 
-    public void setLastFailed(String lastFailed) {
-        this.lastFailed = lastFailed;
+    public void setFailRatio(String failRatio) {
+        this.failRatio = failRatio;
     }
 
     public String getTitleHyperlinkAddress() {
@@ -163,7 +179,7 @@ public class TestRailCase {
 
     @Override
     public String toString() {
-        return assigned + "\t" + lastFailed + "\t" + titleHyperlinkAddress + "\t" + titleHyperlinkLabel + "\t"
+        return assigned + "\t" + failRatio + "\t" + titleHyperlinkAddress + "\t" + titleHyperlinkLabel + "\t"
                 + caseHyperlinkAddress + "\t" + caseHyperlinkLabel + "\t" + testStatus + "\t" + section + "\t"
                 + description + "\t" + solution + "\t" + solHyperlinkAddress + "\t" + solHyperlinkLabel + "\t" + status;
     }
