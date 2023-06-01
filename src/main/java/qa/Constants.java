@@ -9,7 +9,19 @@ public class Constants {
     public static final int CTFR = 1;
     public static final int INT1FR = 2;
 
-    public static IndexedColors[] colors = {
+    protected static final String[] STATUS = new String[]{
+            "-",
+            "DEVELOPING",
+            "NODE_ERROR",
+            "PR_CREATED",
+            "PR_MERGED",
+            "POSSIBLE_BUG",
+            "REPORTED_BUG",
+            "WAITING_SUPPORT",
+            "WAITING_NEXT_EXECUTION",
+            "PERFORMANCE_ISSUE"
+    };
+    protected static final IndexedColors[] COLORS = {
             IndexedColors.LIGHT_GREEN,
             IndexedColors.LIGHT_TURQUOISE,
             IndexedColors.LIGHT_YELLOW,
@@ -17,10 +29,8 @@ public class Constants {
             IndexedColors.LIGHT_ORANGE,
             IndexedColors.LIGHT_CORNFLOWER_BLUE
     };
-    public static final String[] Status = new String[]{"-", "DEVELOPING","NODE_ERROR", "PR_CREATED", "PR_MERGED",
-            "POSSIBLE_BUG", "REPORTED_BUG", "WAITING_SUPPORT"};
 
-    public enum EXCEL_FIELDS {
+    public enum ExcelFields {
         ASSIGNED_TO,
         FAIL_PASS_POST,
         TITLE,

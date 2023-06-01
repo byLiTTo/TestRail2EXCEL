@@ -32,7 +32,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import qa.Constants.EXCEL_FIELDS;
+import qa.Constants.ExcelFields;
 
 public class TestRailPage {
 
@@ -43,15 +43,23 @@ public class TestRailPage {
     private static final String HEADER = "content-header";
     private static final String DISPLAYER = "./td[@class='action']";
     private static final String HISTORY_TAB = "//div[@class='tab-header']/a[@id= 'historyTab']";
-    private static final String SHOW_ALL = "//div[@id='showHistory']/span[@class='showAll text-secondary pull-right']/a";
-    private static final String STATISTICS_PANEL = "//div[@class='chart-legend-title' and contains(text(),'In the past 30 days:')]/..";
+    private static final String HISTORY_TAB_ICON =
+            HISTORY_TAB + "/div[@class='link-tooltip tab-header-help-link tooltip-help-link']";
+    private static final String SHOW_ALL =
+            "//div[@id='showHistory']" + "/span[@class='showAll text-secondary pull-right']/a";
+    private static final String STATISTICS_PANEL =
+            "//div[@class='chart-legend-title' " + "and contains(text(),'In the past 30 days:')]/..";
     private static final String HISTORY_PASSED_TEST = "//div[@id='history']//tr/td[@class='box']/span[text()='Passed']";
     private static final String HISTORY_FAILED_TEST = "//div[@id='history']//tr/td[@class='box']/span[text()='Failed']";
-    private static final String HISTORY_POSTPONED_TEST = "//div[@id='history']//tr/td[@class='box']/span[text()='Postponed']";
-
-    private static final String HISTORY_RECENTLY_PASSED_TEST = "//div[@id='history']//div[@class='chart-legend-name text-ppp' and contains(text(),'Passed')]";
-    private static final String HISTORY_RECENTLY_FAILED_TEST = "//div[@id='history']//div[@class='chart-legend-name text-ppp' and contains(text(),'Failed')]";
-    private static final String HISTORY_RECENTLY_POSTPONED_TEST = "//div[@id='history']//div[@class='chart-legend-name text-ppp' and contains(text(),'Postponed')]";
+    private static final String HISTORY_POSTPONED_TEST =
+            "//div[@id='history']//tr" + "/td[@class='box']/span[text()='Postponed']";
+    private static final String HISTORY_RECENTLY = "//div[@id='history']";
+    private static final String HISTORY_RECENTLY_PASSED_TEST =
+            HISTORY_RECENTLY + "//div[@class='chart-legend-name text-ppp' and contains(text(),'Passed')]";
+    private static final String HISTORY_RECENTLY_FAILED_TEST =
+            HISTORY_RECENTLY + "//div[@class='chart-legend-name text-ppp' and contains(text(),'Failed')]";
+    private static final String HISTORY_RECENTLY_POSTPONED_TEST =
+            HISTORY_RECENTLY + "//div[@class='chart-legend-name text-ppp' and contains(text(),'Postponed')]";
 
     private WebDriver webDriver;
     private WebDriverWait wait;
@@ -94,6 +102,7 @@ public class TestRailPage {
             String section = element.findElement(By.xpath("./../../..//*[@class='title pull-left']")).getText();
 
             String failRatio = loadRecentlyHistory(element);
+            System.out.println(failRatio);
 
             temp.add(new TestRailCase(failRatio, titleHyperlinkAddress, titleHyperlinkLabel, caseHyperlinkAddress,
                     caseHyperlinkLabel, testStatus, section));
@@ -108,7 +117,10 @@ public class TestRailPage {
 
         sleep(1000);
 
-        return loadTestCases(webDriver.findElements(By.xpath("//td[@class='js-status']//a[text()='Failed']/../..")));
+        List<TestRailCase> cases = loadTestCases(
+                webDriver.findElements(By.xpath("//td[@class='js-status']//a[text()='Failed']/../..")));
+//        cases.sort(new TestRailCaseComparator());
+        return cases;
     }
 
     public List<TestRailCase> loadPostponedTestCases() {
@@ -118,7 +130,10 @@ public class TestRailPage {
         js.executeScript("window.scrollTo(0, 0)");
         sleep(1000);
 
-        return loadTestCases(webDriver.findElements(By.xpath("//td[@class='js-status']//a[text()='Postponed']/../..")));
+        List<TestRailCase> cases = loadTestCases(
+                webDriver.findElements(By.xpath("//td[@class='js-status']//a[text()='Postponed']/../..")));
+//        cases.sort(new TestRailCaseComparator());
+        return cases;
     }
 
     private String loadHistory(WebElement element) {
@@ -161,7 +176,7 @@ public class TestRailPage {
         sleep(500);
         wait.until(ExpectedConditions.visibilityOf(element.findElement(By.xpath(DISPLAYER))));
         wait.until(ExpectedConditions.elementToBeClickable(element.findElement(By.xpath(DISPLAYER)))).click();
-        sleep(500);
+//        sleep(500);
         wait.until(ExpectedConditions.attributeContains(
                 element.findElement(By.xpath(DISPLAYER + "//span[@class='action-collapse hidden']")), "style",
                 "display: inline;"));
@@ -170,9 +185,11 @@ public class TestRailPage {
         sleep(500);
         wait.until(ExpectedConditions.visibilityOf(webDriver.findElement(By.xpath(HISTORY_TAB))));
         wait.until(ExpectedConditions.elementToBeClickable(webDriver.findElement(By.xpath(HISTORY_TAB)))).click();
+        wait.until(ExpectedConditions.attributeContains(webDriver.findElement(By.xpath(HISTORY_TAB_ICON)), "style",
+                "display: block;"));
         sleep(500);
 
-//        wait.until(ExpectedConditions.visibilityOf(webDriver.findElement(By.xpath(STATISTICS_PANEL))));
+        js.executeScript(SCROLL_SCRIPT, webDriver.findElement(By.xpath(HISTORY_RECENTLY_FAILED_TEST)));
         String totalPassed = webDriver.findElement(By.xpath(HISTORY_RECENTLY_PASSED_TEST)).getText().split(" ")[0];
         String totalFail = webDriver.findElement(By.xpath(HISTORY_RECENTLY_FAILED_TEST)).getText().split(" ")[0];
         String totalPostponed = webDriver.findElement(By.xpath(HISTORY_RECENTLY_POSTPONED_TEST)).getText()
@@ -204,7 +221,7 @@ public class TestRailPage {
 
         // Writing empty row
         Row row = sheet.createRow(rownNum++);
-        for (int i = 0; i < EXCEL_FIELDS.values().length; i++) {
+        for (int i = 0; i < ExcelFields.values().length; i++) {
             row.createCell(cellnum++).setCellValue(" ");
         }
 
@@ -214,14 +231,14 @@ public class TestRailPage {
         Cell cell = row.createCell(cellnum++);
         cell.setCellStyle(getHeaderStyle(sheet.getWorkbook().createCellStyle()));
         cell.setCellValue(DateTimeFormatter.ofPattern("MM/dd/yyyy").format(LocalDateTime.now()));
-        for (int i = 1; i < EXCEL_FIELDS.values().length; i++) {
+        for (int i = 1; i < ExcelFields.values().length; i++) {
             row.createCell(cellnum++).setCellValue(" ");
         }
 
         // Writing Title row
         row = sheet.createRow(rownNum++);
         cellnum = 0;
-        for (EXCEL_FIELDS field : EXCEL_FIELDS.values()) {
+        for (ExcelFields field : ExcelFields.values()) {
             cell = row.createCell(cellnum++);
             cell.setCellStyle(getHeaderStyle(sheet.getWorkbook().createCellStyle()));
             cell.setCellValue(field.toString());
@@ -295,7 +312,7 @@ public class TestRailPage {
         CellRangeAddressList addressList = new CellRangeAddressList(rowValidation, rowValidation + cases.size() - 1,
                 9,
                 9);
-        constraint = validationHelper.createExplicitListConstraint(Constants.Status);
+        constraint = validationHelper.createExplicitListConstraint(Constants.STATUS);
         dataValidation = validationHelper.createValidation(constraint, addressList);
         dataValidation.setSuppressDropDownArrow(true);
         sheet.addValidationData(dataValidation);
@@ -354,7 +371,7 @@ public class TestRailPage {
         }
         int regressionRow = rowNum;
         while (!sheet.getRow(regressionRow).getCell(0).getStringCellValue()
-                .equals(EXCEL_FIELDS.ASSIGNED_TO.toString())) {
+                .equals(ExcelFields.ASSIGNED_TO.toString())) {
             regressionRow--;
         }
 
@@ -452,7 +469,7 @@ public class TestRailPage {
         style.setBorderLeft(CellStyle.BORDER_THIN);
         style.setBorderRight(CellStyle.BORDER_THIN);
         style.setWrapText(true);
-        style.setFillForegroundColor(Constants.colors[color].getIndex());
+        style.setFillForegroundColor(Constants.COLORS[color].getIndex());
 
         return style;
     }
@@ -464,7 +481,7 @@ public class TestRailPage {
             if (cases.get(i - 1).getSection().equals(cases.get(i).getSection())) {
                 return color;
             } else {
-                if (color == Constants.colors.length - 1) {
+                if (color == Constants.COLORS.length - 1) {
                     return 0;
                 } else {
                     return ++color;

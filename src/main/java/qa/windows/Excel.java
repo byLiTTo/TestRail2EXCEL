@@ -18,12 +18,12 @@ import qa.ExcelController;
 
 public class Excel extends JFrame {
 
-    // CONSTANTS --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> -->
+    // CONSTANTS --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --
 
     private static final String CALIBRI = "Calibri";
     private static final String DEFAULT = "Default";
 
-    // ATTRIBUTES   -->  --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> -->
+    // ATTRIBUTES   -->  --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> -->
 
     private JComboBox comboBox;
     private JTextField textFieldRegreCT;
@@ -103,7 +103,8 @@ public class Excel extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setCursor(Cursor.WAIT_CURSOR);
-                controller.update(String.valueOf(comboBox.getSelectedItem()), textFieldRegreCT.getText(),
+                controller.update(String.valueOf(comboBox.getSelectedItem()),
+                        textFieldRegreCT.getText(),
                         textFieldRegreINT.getText());
                 setCursor(Cursor.DEFAULT_CURSOR);
             }

@@ -1,5 +1,7 @@
 package qa;
 
+import java.util.Comparator;
+
 public class TestRailCase {
 
     // ATTRIBUTES    --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> -->
@@ -177,10 +179,43 @@ public class TestRailCase {
         this.status = status;
     }
 
+    // OVERRIDES --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> --> -->
+
     @Override
     public String toString() {
         return assigned + "\t" + failRatio + "\t" + titleHyperlinkAddress + "\t" + titleHyperlinkLabel + "\t"
                 + caseHyperlinkAddress + "\t" + caseHyperlinkLabel + "\t" + testStatus + "\t" + section + "\t"
                 + description + "\t" + solution + "\t" + solHyperlinkAddress + "\t" + solHyperlinkLabel + "\t" + status;
+    }
+}
+
+@SuppressWarnings("checkstyle:OneTopLevelClass")
+class TestRailCaseComparator implements Comparator<TestRailCase> {
+
+    @Override
+    public int compare(TestRailCase o1, TestRailCase o2) {
+        int proportion1;
+        String[] failRatio1 = o1.getFailRatio().split("/");
+        int fail1 = Integer.parseInt(failRatio1[0]);
+        int pass1 = Integer.parseInt(failRatio1[1]);
+//        int post1 = Integer.getInteger(failRatio1[2]);
+        if ((fail1 + pass1) == 0) {
+            proportion1 = 0;
+        } else {
+            proportion1 = fail1 / (fail1 + pass1);
+        }
+
+        int proportion2;
+        String[] failRatio2 = o2.getFailRatio().split("/");
+        int fail2 = Integer.parseInt(failRatio2[0]);
+        int pass2 = Integer.parseInt(failRatio2[1]);
+//        int post2 = Integer.getInteger(failRatio2[2]);
+        if ((fail2 + pass2) == 0) {
+            proportion2 = 0;
+        } else {
+            proportion2 = fail2 / (fail2 + pass2);
+        }
+
+        return Integer.compare(proportion1, proportion2);
     }
 }

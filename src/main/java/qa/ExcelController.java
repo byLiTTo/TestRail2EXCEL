@@ -4,7 +4,6 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.JFileChooser;
@@ -52,6 +51,7 @@ public class ExcelController {
         previousRegressionCTFR = page.convertExcel2Hashmap(new File(ctfrExcelPath));
 
         failedCTFR = page.mergeFailedCases(previousRegressionCTFR, page.loadFailedTestCases());
+
         postponedCTFR = page.mergePostponedCases(previousRegressionCTFR, page.loadPostponedTestCases());
 
         page.convertTestCase2Excel(new File(ctfrExcelPath),
