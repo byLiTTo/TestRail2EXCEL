@@ -27,6 +27,7 @@ Next, we will explain the interface and its different functionalities.
 6. Open (CTFR): Button that opens a pop up that opens the file explorer to find the location of the excel file to be used for CTFR.
 7. Open (INT1FR): Button that opens a pop up that opens the file explorer to search for the location of the excel file to be used for INT1FR.
 8. Update: Button that launches the program.
+9. Running version of the program.
 
 **Español:**   
 A continuación, vamos a explicar la interfaz y sus diferentes funcionalidades.
@@ -38,3 +39,4 @@ A continuación, vamos a explicar la interfaz y sus diferentes funcionalidades.
 6. Open (CTFR): Botón que abre un pop up que abre el explorador de archivos para buscar la localización del fichero excel que se usará para CTFR.
 7. Open (INT1FR): Botón que abre un pop up que abre el explorador de archivos para buscar la localización del fichero excel que se usará para INT1FR.
 8. Update: Botón que lanza el programa.
+9. Versión que se está ejecutando del programa.
