@@ -40,3 +40,7 @@ A continuación, vamos a explicar la interfaz y sus diferentes funcionalidades.
 7. Open (INT1FR): Botón que abre un pop up que abre el explorador de archivos para buscar la localización del fichero excel que se usará para INT1FR.
 8. Update: Botón que lanza el programa.
 9. Versión que se está ejecutando del programa.
+
+<p align="center">
+  <img src="https://github.com/byLiTTo/TestRail2EXCEL/blob/master/img/PopUp.png" height="250" />
+</p>
