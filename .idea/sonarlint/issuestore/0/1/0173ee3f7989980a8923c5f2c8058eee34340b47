@@ -1,0 +1,11 @@
+
+‡
+java:S1319ý"pThe type of the "previous" object should be an interface such as "Map" rather than the implementation "HashMap".(µ×¾ò
+Œ
+java:S1319Š"pThe type of the "previous" object should be an interface such as "Map" rather than the implementation "HashMap".(Òà±Éûÿÿÿÿ
+	java:S120"jRename this package name to match the regular expression '^com\.solera\.global\.qa(\.[a-z_][a-z0-9_]*)+$'.(Ö­îï
+O
+java:S1117î"8Rename "wait" which hides the field declared at line 65.(‡ø†¦
+F
+java:S1172ý"/Remove this unused method parameter "previous".(µ×¾ò
+R	java:S125þ"<This block of commented-out lines of code should be removed.(Žîã½
