@@ -14,7 +14,7 @@ Todas las noches se ejecuta un test plan de testcases automatizados y generan un
 ## Main window
 
 <p align="center">
-  <img src="https://github.com/byLiTTo/TestRail2EXCEL/blob/master/img/Menu.png" height="250" />
+  <img src="https://github.com/byLiTTo/TestRail2EXCEL/blob/master/img/Menu.png" height="350" />
 </p>
 
 **English:**   
